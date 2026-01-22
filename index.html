@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pelacak Memasak Harian</title>
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #121212; /* Dark mode default */
+            --text-color: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --accent-color: #00d4ff;
+        }
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            transition: background 0.3s, color 0.3s;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, button {
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            background: var(--glass-bg);
+            color: var(--text-color);
+            font-size: 16px;
+        }
+        input:focus {
+            outline: 2px solid var(--accent-color);
+        }
+        button {
+            cursor: pointer;
+            background: var(--accent-color);
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #0099cc;
+        }
+        #result {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #calendar {
+            margin-top: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .fc {
+            background: var(--glass-bg);
+            color: var(--text-color);
+        }
+        .fc-button {
+            background: var(--accent-color) !important;
+            border: none !important;
+        }
+        .fc-event {
+            background: var(--accent-color) !important;
+            border: none !important;
+        }
+        #toggleMode {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            font-size: 20px;
+        }
+        #toggleMode:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <button id="toggleMode">🌙</button>
+    <div class="container">
+        <h1>Pelacak Memasak Harian</h1>
+        <form id="inputForm">
+            <label for="drum">Jumlah Drum:</label>
+            <input type="number" id="drum" min="1" required>
+            <label for="tanggal">Tanggal:</label>
+            <input type="date" id="tanggal" required>
+            <button type="submit">Simpan</button>
+        </form>
+        <div id="result">Total Bayaran: Rp 0</div>
+        <div id="calendar"></div>
+    </div>
+
+    <script>
+        // Toggle Dark Mode
+        const toggleButton = document.getElementById('toggleMode');
+        const root = document.documentElement;
+        let isDark = true;
+        toggleButton.addEventListener('click', () => {
+            isDark = !isDark;
+            if (isDark) {
+                root.style.setProperty('--bg-color', '#121212');
+                root.style.setProperty('--text-color', '#ffffff');
+                toggleButton.textContent = '🌙';
+            } else {
+                root.style.setProperty('--bg-color', '#f0f0f0');
+                root.style.setProperty('--text-color', '#000000');
+                toggleButton.textContent = '☀️';
+            }
+        });
+
+        // Inisialisasi Kalender
+        const calendarEl = document.getElementById('calendar');
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            events: loadEvents(),
+            eventClick: function(info) {
+                alert(`Tanggal: ${info.event.startStr}\nDrum: ${info.event.extendedProps.drum}\nBayaran: Rp ${info.event.extendedProps.bayaran.toLocaleString()}`);
+            }
+        });
+        calendar.render();
+
+        // Fungsi Load Events dari localStorage
+        function loadEvents() {
+            const data = JSON.parse(localStorage.getItem('masakData')) || [];
+            return data.map(item => ({
+                title: `Masak ${item.drum} drum - Rp ${item.bayaran.toLocaleString()}`,
+                start: item.tanggal,
+                extendedProps: {
+                    drum: item.drum,
+                    bayaran: item.bayaran
+                }
+            }));
+        }
+
+        // Form Submit Handler
+        document.getElementById('inputForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const drum = parseInt(document.getElementById('drum').value);
+            const tanggal = document.getElementById('tanggal').value;
+            const bayaran = drum * 10000;
+            document.getElementById('result').textContent = `Total Bayaran: Rp ${bayaran.toLocaleString()}`;
+            
+            // Simpan ke localStorage
+            let data = JSON.parse(localStorage.getItem('masakData')) || [];
+            data.push({ tanggal, drum, bayaran });
+            localStorage.setItem('masakData', JSON.stringify(data));
+            
+            // Update Kalender
+            calendar.removeAllEvents();
+            calendar.addEventSource(loadEvents());
+            
+            // Reset Form
+            document.getElementById('inputForm').reset();
+        });
+    </script>
+</body>
+</html>
