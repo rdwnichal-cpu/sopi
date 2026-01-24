@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XAUUSD SMC Dashboard</title>
+<title>XAUUSD SMC AUTO</title>
 
 <style>
 :root{
@@ -12,43 +12,39 @@
   --border:rgba(255,255,255,.18);
   --text:#fff;
   --sub:rgba(255,255,255,.6);
-  --accent:#5ad7ff;
+  --bull:#2cff9a;
+  --bear:#ff4d4d;
+  --wait:#ffd166;
 }
 
 *{box-sizing:border-box}
 
 body{
   margin:0;
-  min-height:100vh;
   background:#000;
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;
-  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI";
+  color:white;
   padding:24px;
 }
 
-/* Liquid glow */
-body::before,body::after{
+body::before{
   content:"";
   position:fixed;
-  width:420px;
-  height:420px;
-  background:radial-gradient(circle,var(--accent),transparent 70%);
-  filter:blur(140px);
-  opacity:.35;
+  width:500px;height:500px;
+  background:radial-gradient(circle,#5ad7ff,transparent 70%);
+  filter:blur(150px);
+  opacity:.3;
   z-index:-1;
 }
-body::before{top:-200px;left:-200px}
-body::after{bottom:-200px;right:-200px}
 
 .app{
-  max-width:1400px;
+  max-width:1100px;
   margin:auto;
   background:var(--glass);
-  backdrop-filter:blur(32px) saturate(180%);
+  backdrop-filter:blur(32px);
   border:1px solid var(--border);
   border-radius:32px;
-  padding:24px;
-  box-shadow:0 40px 90px rgba(0,0,0,.85);
+  padding:28px;
 }
 
 header{
@@ -58,76 +54,44 @@ header{
   margin-bottom:20px;
 }
 
-header h1{
-  font-size:26px;
-  font-weight:600;
+h1{font-size:26px}
+
+.price{
+  font-size:22px;
+  font-weight:700;
 }
 
-.badge{
-  padding:8px 14px;
-  border-radius:14px;
-  background:rgba(90,215,255,.15);
-  border:1px solid var(--border);
-  color:var(--accent);
-  font-weight:600;
-}
-
-/* Layout */
 .grid{
   display:grid;
-  grid-template-columns:2.5fr 1fr;
+  grid-template-columns:1fr 1fr;
   gap:20px;
 }
 
-/* Chart */
-.chart{
-  border-radius:24px;
-  overflow:hidden;
-  border:1px solid var(--border);
-}
-
-/* Panels */
 .panel{
   background:rgba(255,255,255,.06);
   border:1px solid var(--border);
   border-radius:22px;
   padding:18px;
-  margin-bottom:16px;
 }
 
-.panel h3{
-  margin:0 0 12px;
-  font-size:17px;
-}
+.panel h3{margin:0 0 12px}
 
-.checklist label{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:10px;
-  font-size:15px;
-}
-
-.checklist input{
-  accent-color:#5ad7ff;
-  transform:scale(1.2);
-}
-
-.bias{
-  font-size:18px;
+.status{
+  font-size:22px;
   font-weight:700;
   text-align:center;
-  padding:14px;
-  border-radius:16px;
-  background:linear-gradient(135deg,#5ad7ff,#6f7bff);
-  color:black;
+  padding:18px;
+  border-radius:18px;
 }
 
-.footer{
-  margin-top:20px;
-  text-align:center;
+.bull{background:var(--bull);color:black}
+.bear{background:var(--bear);color:black}
+.wait{background:var(--wait);color:black}
+
+.log{
+  font-size:14px;
   color:var(--sub);
-  font-size:13px;
+  line-height:1.6;
 }
 </style>
 </head>
@@ -135,60 +99,102 @@ header h1{
 <body>
 <div class="app">
   <header>
-    <h1>📈 XAUUSD • SMC Dashboard</h1>
-    <div class="badge">Realtime</div>
+    <h1>📈 XAUUSD • SMC AUTO</h1>
+    <div class="price" id="price">Loading...</div>
   </header>
 
   <div class="grid">
-    <!-- CHART -->
-    <div class="chart">
-      <!-- TradingView Widget -->
-      <iframe 
-        src="https://s.tradingview.com/widgetembed/?symbol=OANDA:XAUUSD&interval=15&theme=dark&style=1&locale=en&toolbar_bg=000000&enable_publishing=false&hide_side_toolbar=false&allow_symbol_change=false"
-        width="100%" height="620" frameborder="0">
-      </iframe>
+    <div class="panel">
+      <h3>🧠 Auto SMC Status</h3>
+      <div id="bias" class="status wait">WAIT</div>
     </div>
 
-    <!-- SMC PANEL -->
-    <div>
-      <div class="panel">
-        <h3>📌 Market Structure</h3>
-        <div class="checklist">
-          <label><input type="checkbox"> BOS (Break of Structure)</label>
-          <label><input type="checkbox"> CHoCH</label>
-          <label><input type="checkbox"> Trend HTF valid</label>
-          <label><input type="checkbox"> LTF entry confirm</label>
-        </div>
-      </div>
-
-      <div class="panel">
-        <h3>💧 Liquidity</h3>
-        <div class="checklist">
-          <label><input type="checkbox"> Equal Highs</label>
-          <label><input type="checkbox"> Equal Lows</label>
-          <label><input type="checkbox"> Stop Hunt</label>
-        </div>
-      </div>
-
-      <div class="panel">
-        <h3>📦 POI (Entry Area)</h3>
-        <div class="checklist">
-          <label><input type="checkbox"> Order Block</label>
-          <label><input type="checkbox"> FVG</label>
-          <label><input type="checkbox"> Premium / Discount</label>
-        </div>
-      </div>
-
-      <div class="panel">
-        <h3>🎯 Trade Bias</h3>
-        <div class="bias">WAIT / NO TRADE</div>
-      </div>
+    <div class="panel">
+      <h3>📊 Market Structure Log</h3>
+      <div id="log" class="log">Menunggu data...</div>
     </div>
-  </div>
-
-  <div class="footer">
-    Smart Money Concept • XAUUSD • Liquid Glass UI
   </div>
 </div>
+
+<script>
+/* ==============================
+   🔑 MASUKKAN API KEY KAMU
+================================ */
+const API_KEY = "ISI_API_KEY_KAMU";
+
+/* ==============================
+   FETCH GOLD PRICE
+================================ */
+async function getGold(){
+  const url=`https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=XAUUSD&interval=15min&apikey=${API_KEY}`;
+  const res=await fetch(url);
+  const json=await res.json();
+  const data=json["Time Series (15min)"];
+  return Object.values(data).map(d=>({
+    high:+d["2. high"],
+    low:+d["3. low"],
+    close:+d["4. close"]
+  }));
+}
+
+/* ==============================
+   SMC ENGINE (LEVEL 1)
+================================ */
+function analyze(candles){
+  const highs=candles.map(c=>c.high);
+  const lows=candles.map(c=>c.low);
+
+  const lastClose=candles[0].close;
+  const prevHigh=Math.max(...highs.slice(5,15));
+  const prevLow=Math.min(...lows.slice(5,15));
+
+  let bias="WAIT";
+  let log=[];
+
+  if(lastClose > prevHigh){
+    bias="BULLISH";
+    log.push("BOS ↑ (Break High)");
+  }
+  else if(lastClose < prevLow){
+    bias="BEARISH";
+    log.push("BOS ↓ (Break Low)");
+  }
+  else{
+    log.push("Range / No Break");
+  }
+
+  return {bias,log,lastClose};
+}
+
+/* ==============================
+   MAIN LOOP
+================================ */
+async function run(){
+  try{
+    const candles=await getGold();
+    const res=analyze(candles);
+
+    price.textContent=`XAUUSD: ${res.lastClose.toFixed(2)}`;
+
+    if(res.bias==="BULLISH"){
+      bias.className="status bull";
+      bias.textContent="BULLISH";
+    }else if(res.bias==="BEARISH"){
+      bias.className="status bear";
+      bias.textContent="BEARISH";
+    }else{
+      bias.className="status wait";
+      bias.textContent="WAIT";
+    }
+
+    log.innerHTML=res.log.join("<br>");
+  }catch{
+    log.textContent="API limit / error";
+  }
+}
+
+run();
+setInterval(run,60000); // update tiap 1 menit
+</script>
 </body>
 </html>
